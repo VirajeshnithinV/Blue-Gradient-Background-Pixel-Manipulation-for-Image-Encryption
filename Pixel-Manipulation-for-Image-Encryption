@@ -1,0 +1,69 @@
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plt
+from google.colab import files
+import io
+
+# Function to upload an image and get its path
+def upload_image():
+    uploaded = files.upload()
+    for filename in uploaded.keys():
+        return filename
+
+def encrypt_image(img_array, key):
+    """Encrypt an image array using pixel manipulation."""
+    encrypted_array = np.copy(img_array)
+    height, width, _ = img_array.shape
+    for i in range(height):
+        for j in range(width):
+            # Simple XOR operation with key
+            encrypted_array[i, j] = img_array[i, j] ^ key
+    return encrypted_array
+
+def decrypt_image(img_array, key):
+    """Decrypt an image array using pixel manipulation."""
+    decrypted_array = np.copy(img_array)
+    height, width, _ = img_array.shape
+    for i in range(height):
+        for j in range(width):
+            # Simple XOR operation with key
+            decrypted_array[i, j] = img_array[i, j] ^ key
+    return decrypted_array
+
+# Upload the image
+uploaded_image_path = upload_image()
+
+# Load the image
+img = Image.open(uploaded_image_path)
+img_array = np.array(img)
+
+# Define a key (0-255) for encryption/decryption
+key = 123
+
+# Encrypt the image
+encrypted_array = encrypt_image(img_array, key)
+encrypted_img = Image.fromarray(encrypted_array.astype(np.uint8))
+
+# Save and display encrypted image
+encrypted_image_path = 'encrypted_' + uploaded_image_path
+encrypted_img.save(encrypted_image_path)
+plt.imshow(encrypted_img)
+plt.title('Encrypted Image')
+plt.axis('off')
+plt.show()
+
+# Decrypt the image
+decrypted_array = decrypt_image(encrypted_array, key)
+decrypted_img = Image.fromarray(decrypted_array.astype(np.uint8))
+
+# Save and display decrypted image
+decrypted_image_path = 'decrypted_' + uploaded_image_path
+decrypted_img.save(decrypted_image_path)
+plt.imshow(decrypted_img)
+plt.title('Decrypted Image')
+plt.axis('off')
+plt.show()
+
+# Download the encrypted and decrypted images
+files.download(encrypted_image_path)
+files.download(decrypted_image_path)
